@@ -20,11 +20,30 @@ The workflow is executed step-by-step. No agent may skip or reorder steps.
   - /rules
   - /skills
   - /workflows
+- /plan-ai-generated → AI-generated prompts, plans, designs, walkthroughs
 
 ### General Constraints
 - Do NOT create separate repositories
 - Do NOT scaffold duplicate projects
 - Prefer minimal, working MVP over full-featured systems
+
+---
+
+## AI Artifact Persistence Rules (MANDATORY)
+
+- Every prompt, plan, design document, walkthrough, or decision log
+  MUST be saved as a markdown file.
+- All such files MUST be written to:
+  /plan-ai-generated/
+- The filename MUST clearly reflect its purpose and step, for example:
+  - step1_product_plan.md
+  - step2_backend_design.md
+  - step3_frontend_prompt.md
+  - frontend_auth_walkthrough.md
+- Long plans or walkthroughs MUST NOT exist only in chat output.
+- The agent MUST explicitly state the file path for each generated artifact.
+- If the agent cannot write files, it MUST output the full markdown content
+  clearly labeled for manual saving by the Human Reviewer.
 
 ---
 
@@ -70,10 +89,10 @@ The workflow is executed step-by-step. No agent may skip or reorder steps.
 - Define minimal MVP scope
 - Identify core domain entities
 
-### Output
-- Feature list
-- Basic domain entities
-- Explicit MVP boundary (what is IN / what is OUT)
+### Output (MANDATORY)
+- /plan-ai-generated/step1_product_features.md
+- /plan-ai-generated/step1_domain_entities.md
+- /plan-ai-generated/step1_mvp_scope.md
 
 ---
 
@@ -92,9 +111,9 @@ The workflow is executed step-by-step. No agent may skip or reorder steps.
 - Use PostgreSQL-compatible data modeling
 - JWT-based authentication
 
-### Output
-- Backend source code
-- API contracts (documented or implicit via controllers)
+### Output (MANDATORY)
+- /plan-ai-generated/step2_backend_design.md
+- /plan-ai-generated/step2_api_contracts.md
 
 ---
 
@@ -112,8 +131,10 @@ The workflow is executed step-by-step. No agent may skip or reorder steps.
 - Focus on usability and clarity over visual polish
 - No backend assumptions or changes
 
-### Output
-- Frontend source code
+### Output (MANDATORY)
+- /plan-ai-generated/step3_frontend_prompt.md
+- /plan-ai-generated/step3_frontend_implementation_plan.md
+- /plan-ai-generated/frontend_auth_walkthrough.md
 
 ---
 
@@ -124,10 +145,10 @@ The workflow is executed step-by-step. No agent may skip or reorder steps.
 - Identify critical bugs, edge cases, and missing flows
 - Propose fixes conceptually (no code refactors)
 
-### Output
-- Test scenarios
-- Bug list
-- Risk notes (security, data integrity, UX blockers)
+### Output (MANDATORY)
+- /plan-ai-generated/step4_test_scenarios.md
+- /plan-ai-generated/step4_bug_list.md
+- /plan-ai-generated/step4_risk_notes.md
 
 ---
 

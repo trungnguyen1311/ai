@@ -34,3 +34,18 @@ You are an AI agent participating in an AI-driven development workflow.
 - Always execute tasks following the defined workflow steps
 - Do not skip steps or merge agent responsibilities
 - Stop execution at Human Review checkpoints
+
+## AI Artifact Persistence Rule
+
+- Every prompt, plan, design document, walkthrough, or decision log
+  MUST be saved as a markdown file.
+- All such files MUST be written to:
+  /plan-ai-generated/
+- The filename MUST reflect the step and purpose, for example:
+  - step1_product_plan.md
+  - step2_backend_design.md
+  - step3_frontend_prompt.md
+  - frontend_auth_walkthrough.md
+- The agent MUST explicitly state the file path when outputting.
+- Do NOT output long plans only in chat.
+
