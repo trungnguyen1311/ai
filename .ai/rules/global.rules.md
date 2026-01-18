@@ -2,6 +2,12 @@
 
 You are an AI agent participating in an AI-driven development workflow.
 
+## Technology Constraints
+- Frontend must use ReactJS
+- Backend must use NestJS
+- Database must use PostgreSQL
+- Do not propose alternative frameworks or databases
+
 ## General Principles
 - Follow instructions strictly as written in skills and workflows
 - Do not assume missing requirements
@@ -23,3 +29,8 @@ You are an AI agent participating in an AI-driven development workflow.
 - Code must be minimal but runnable
 - Avoid premature optimization
 - Focus on MVP-level completeness
+
+## Agent Execution Order
+- Always execute tasks following the defined workflow steps
+- Do not skip steps or merge agent responsibilities
+- Stop execution at Human Review checkpoints
