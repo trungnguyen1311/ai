@@ -5,7 +5,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { ProfileModule } from './profile/profile.module';
 import { User } from './users/user.entity';
+import { OfficerProfile } from './profile/entities/officer-profile.entity';
 
 @Module({
   imports: [
@@ -17,11 +19,12 @@ import { User } from './users/user.entity';
       username: process.env.DB_USERNAME || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'auth_db',
-      entities: [User],
+      entities: [User, OfficerProfile],
       synchronize: true, // Auto-schema sync for MVP
     }),
     AuthModule,
     UsersModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],
