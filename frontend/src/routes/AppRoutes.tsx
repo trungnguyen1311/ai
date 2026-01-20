@@ -9,6 +9,9 @@ import AdminOfficerDetailPage from "../pages/AdminOfficerDetailPage";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AdminLayout from "../components/AdminLayout";
 import { useAuth } from "../context/AuthContext";
+import VerifyEmailPage from "../pages/VerifyEmailPage";
+import ForgotPasswordPage from "../pages/ForgotPasswordPage";
+import ResetPasswordPage from "../pages/ResetPasswordPage";
 
 export default function AppRoutes() {
   const { user, isLoading } = useAuth();
@@ -26,6 +29,9 @@ export default function AppRoutes() {
       {/* Public Routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
 
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>

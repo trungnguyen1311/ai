@@ -103,6 +103,14 @@ export default function LoginPage() {
                   {errors.password.message as string}
                 </p>
               )}
+              <div className="text-right mt-2">
+                <Link
+                  to="/forgot-password"
+                  className="text-xs text-slate-400 hover:text-blue-400 font-semibold transition-colors"
+                >
+                  Quên mật khẩu?
+                </Link>
+              </div>
             </div>
 
             <div>

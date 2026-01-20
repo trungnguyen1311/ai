@@ -35,6 +35,23 @@ export class User {
   @Column({ default: true })
   isActive: boolean;
 
+  // Email Verification Fields
+  @Column({ default: false })
+  isEmailVerified: boolean;
+
+  @Column({ nullable: true })
+  emailVerificationToken: string | null;
+
+  @Column({ nullable: true })
+  emailVerificationTokenExpiresAt: Date | null;
+
+  // Password Reset Fields
+  @Column({ nullable: true })
+  passwordResetToken: string | null;
+
+  @Column({ nullable: true })
+  passwordResetTokenExpiresAt: Date | null;
+
   @OneToOne(() => OfficerProfile, (profile) => profile.user)
   profile: OfficerProfile;
 

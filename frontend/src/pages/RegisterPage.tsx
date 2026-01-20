@@ -12,13 +12,15 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const onSubmit = async (data: any) => {
     setIsLoading(true);
     try {
       setError("");
       await api.post("/auth/register", data);
-      navigate("/login");
+      setSuccess(true);
+      // Don't auto-navigate, show verification message instead
     } catch (err: any) {
       console.error(err);
       setError(
@@ -53,6 +55,40 @@ export default function RegisterPage() {
               <p className="text-sm text-red-400 font-semibold text-center">
                 {error}
               </p>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-8 p-6 bg-green-500/10 border border-green-500/20 rounded-2xl animate-in slide-in-from-top-2">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-8 h-8 text-green-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-green-400 mb-2">
+                  Đăng ký thành công!
+                </h3>
+                <p className="text-sm text-slate-300 mb-4">
+                  Vui lòng kiểm tra email để xác thực tài khoản của bạn.
+                </p>
+                <Link
+                  to="/login"
+                  className="inline-block px-6 py-3 bg-green-500/20 hover:bg-green-500/30 text-green-400 font-bold rounded-xl transition-colors"
+                >
+                  Về trang đăng nhập
+                </Link>
+              </div>
             </div>
           )}
 
