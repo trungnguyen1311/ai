@@ -14,6 +14,7 @@ import type {
   CreateProfileDto,
 } from "../types/profile";
 import { useForm } from "react-hook-form";
+import CVManagement from "../components/CVManagement";
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<OfficerProfile | null>(null);
@@ -858,6 +859,7 @@ export default function ProfilePage() {
                 )}
               </div>
             </div>
+            <CVManagement />
           </div>
         </div>
       )}

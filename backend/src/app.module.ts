@@ -10,6 +10,8 @@ import { AdminModule } from './admin/admin.module';
 import { User } from './users/user.entity';
 import { OfficerProfile } from './profile/entities/officer-profile.entity';
 import { OfficerHistory } from './admin/entities/officer-history.entity';
+import { CvModule } from './cv/cv.module';
+import { CV } from './cv/entities/cv.entity';
 
 @Module({
   imports: [
@@ -21,13 +23,14 @@ import { OfficerHistory } from './admin/entities/officer-history.entity';
       username: process.env.DB_USERNAME || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'auth_db',
-      entities: [User, OfficerProfile, OfficerHistory],
+      entities: [User, OfficerProfile, OfficerHistory, CV],
       synchronize: true, // Auto-schema sync for MVP
     }),
     AuthModule,
     UsersModule,
     ProfileModule,
     AdminModule,
+    CvModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -40,6 +40,27 @@ const adminService = {
     return response.data;
   },
 
+  getOfficerCVs: async (userId: string) => {
+    const response = await axios.get(`${API_URL}/admin/cv/user/${userId}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+    return response.data;
+  },
+
+  downloadOfficerCV: async (cvId: string, fileName: string) => {
+    const response = await axios.get(`${API_URL}/admin/cv/${cvId}/download`, {
+      responseType: "blob",
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode?.removeChild(link);
+  },
+
   updateOfficerStatus: async (id: string, isActive: boolean) => {
     const response = await axios.patch(
       `${API_URL}/admin/officers/${id}/status`,

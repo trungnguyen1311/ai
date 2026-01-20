@@ -7,6 +7,7 @@ import {
   OFFICER_TAGS,
 } from "../types/profile";
 import type { OfficerHistory } from "../types/profile";
+import type { CV } from "../services/cvService"; // Using type import from another module or define it if not exported
 import clsx from "clsx";
 
 interface OfficerDetails {
@@ -35,17 +36,20 @@ const AdminOfficerDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const [officer, setOfficer] = useState<OfficerDetails | null>(null);
   const [history, setHistory] = useState<OfficerHistory[]>([]);
+  const [cvs, setCvs] = useState<CV[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchDetails = async () => {
     if (!id) return;
     try {
-      const [officerData, historyData] = await Promise.all([
+      const [officerData, historyData, cvData] = await Promise.all([
         adminService.getOfficerById(id),
         adminService.getOfficerHistory(id),
+        adminService.getOfficerCVs(id),
       ]);
       setOfficer(officerData);
       setHistory(historyData);
+      setCvs(cvData);
     } catch (error) {
       console.error("Failed to fetch officer details", error);
       alert("Không thể tải thông tin chi tiết");
@@ -269,6 +273,100 @@ const AdminOfficerDetailPage: React.FC = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* CV Section */}
+        <div className="bg-white shadow overflow-hidden sm:rounded-xl">
+          <div className="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
+            <h3 className="text-lg leading-6 font-medium text-gray-900">
+              Hồ sơ CV
+            </h3>
+            <p className="mt-1 max-w-2xl text-sm text-gray-500">
+              Danh sách CV đã tải lên của cán bộ.
+            </p>
+          </div>
+          <div className="px-4 py-5 sm:p-6">
+            {cvs.length === 0 ? (
+              <p className="text-gray-500 text-sm text-center py-4">
+                Chưa có CV nào.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {cvs.map((cv) => (
+                  <div
+                    key={cv.id}
+                    className={`flex items-center justify-between p-4 rounded-xl border transition-all ${cv.isLatest ? "bg-indigo-50/50 border-indigo-100" : "bg-white border-gray-100"}`}
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center ${cv.isLatest ? "bg-indigo-100 text-indigo-600" : "bg-slate-100 text-slate-500"}`}
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <h4 className="font-semibold text-gray-900 text-sm">
+                            {cv.fileName}
+                          </h4>
+                          {cv.isLatest && (
+                            <span className="px-2 py-0.5 bg-indigo-600 text-white text-[10px] uppercase font-bold rounded">
+                              Mới nhất
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center space-x-2 mt-0.5 text-xs text-slate-500">
+                          <span>Phiên bản {cv.version}</span>
+                          <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                          <span>
+                            {(cv.fileSize / 1024 / 1024).toFixed(2)} MB
+                          </span>
+                          <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                          <span>
+                            {new Date(cv.uploadedAt).toLocaleDateString(
+                              "vi-VN",
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() =>
+                        adminService.downloadOfficerCV(cv.id, cv.fileName)
+                      }
+                      className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                      title="Tải xuống"
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* History Section */}

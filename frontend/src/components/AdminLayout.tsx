@@ -12,7 +12,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   const menuItems = [
     {
-      name: "Dashboard",
+      name: "Tổng quan",
       path: "/dashboard",
       icon: (
         <svg
@@ -53,26 +53,29 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           },
         ]
       : []),
-    {
-      name: "Quản lý Cán bộ",
-      path: "/admin/officers",
-      // ... continues
-      icon: (
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-          />
-        </svg>
-      ),
-    },
+    ...(user?.role === "ADMIN" || user?.role === "UNIT_ADMIN"
+      ? [
+          {
+            name: "Quản lý Cán bộ",
+            path: "/admin/officers",
+            icon: (
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                />
+              </svg>
+            ),
+          },
+        ]
+      : []),
     {
       name: "Hồ sơ cá nhân",
       path: "/profile",
@@ -149,7 +152,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             </div>
             <div className="ml-3 flex-1 min-w-0">
               <p className="text-sm font-semibold text-gray-900 truncate">
-                Admin
+                {user?.role}
               </p>
               <p className="text-xs text-gray-500 truncate">{user?.email}</p>
             </div>
