@@ -3,8 +3,10 @@ import { profileService } from "../services/profileService";
 import {
   Department,
   UnionPosition,
+  WorkStatus,
   DepartmentLabels,
   UnionPositionLabels,
+  WorkStatusLabels,
 } from "../types/profile";
 import type {
   OfficerProfile,
@@ -57,11 +59,7 @@ export default function ProfilePage() {
     setIsSubmitting(true);
     setSubmitError(null);
     try {
-      const updated = await profileService.updateProfile({
-        phoneNumber: data.phoneNumber,
-        personalEmail: data.personalEmail,
-        address: data.address,
-      });
+      const updated = await profileService.updateProfile(data);
       setProfile(updated);
       setIsEditing(false);
       reset(updated);
@@ -438,7 +436,7 @@ export default function ProfilePage() {
                   </svg>
                 </div>
                 <h2 className="text-xl font-black text-slate-900 tracking-tight">
-                  Thông tin cá nhân & Liên hệ
+                  Thông tin hồ sơ cán bộ
                 </h2>
               </div>
 
@@ -446,7 +444,7 @@ export default function ProfilePage() {
                 {isEditing ? (
                   <form
                     onSubmit={handleSubmit(onUpdateSubmit)}
-                    className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500"
+                    className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500"
                   >
                     {submitError && (
                       <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm font-bold flex items-center space-x-3">
@@ -467,58 +465,213 @@ export default function ProfilePage() {
                       </div>
                     )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-2">
-                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
-                          Số điện thoại
-                        </label>
-                        <input
-                          {...register("phoneNumber", {
-                            pattern: {
-                              value:
-                                /^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$/,
-                              message: "Số điện thoại Việt Nam không hợp lệ",
-                            },
-                          })}
-                          className={`w-full bg-gray-50 border ${formErrors.phoneNumber ? "border-red-500" : "border-gray-200"} rounded-2xl px-5 py-4 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-bold`}
-                        />
-                        {formErrors.phoneNumber && (
-                          <p className="text-xs text-red-500 mt-1 ml-1 font-bold">
-                            {formErrors.phoneNumber.message as string}
-                          </p>
-                        )}
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
-                          Email cá nhân
-                        </label>
-                        <input
-                          {...register("personalEmail", {
-                            pattern: {
-                              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                              message: "Địa chỉ email không hợp lệ",
-                            },
-                          })}
-                          className={`w-full bg-gray-50 border ${formErrors.personalEmail ? "border-red-500" : "border-gray-200"} rounded-2xl px-5 py-4 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-bold`}
-                        />
-                        {formErrors.personalEmail && (
-                          <p className="text-xs text-red-500 mt-1 ml-1 font-bold">
-                            {formErrors.personalEmail.message as string}
-                          </p>
-                        )}
+                    {/* Personal Info Section */}
+                    <div className="space-y-6">
+                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest border-b border-gray-100 pb-2">
+                        Thông tin cá nhân
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
+                            Họ và tên
+                          </label>
+                          <input
+                            {...register("fullName", {
+                              required: "Vui lòng nhập họ tên",
+                            })}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-slate-900 font-bold"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
+                            CCCD / CMND
+                          </label>
+                          <input
+                            {...register("nationalId")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-slate-900 font-bold"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
+                            Ngày sinh
+                          </label>
+                          <input
+                            type="date"
+                            {...register("dateOfBirth")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-slate-900 font-bold"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
+                            Giới tính
+                          </label>
+                          <select
+                            {...register("gender")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-slate-900 font-bold"
+                          >
+                            <option value="Male">Nam</option>
+                            <option value="Female">Nữ</option>
+                            <option value="Other">Khác</option>
+                          </select>
+                        </div>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
-                        Địa chỉ thường trú
-                      </label>
-                      <textarea
-                        {...register("address")}
-                        rows={3}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-bold resize-none"
-                        placeholder="Nhập địa chỉ của bạn..."
-                      />
+
+                    {/* Contact Info Section */}
+                    <div className="space-y-6">
+                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest border-b border-gray-100 pb-2">
+                        Thông tin liên hệ
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
+                            Số điện thoại
+                          </label>
+                          <input
+                            {...register("phoneNumber", {
+                              pattern: {
+                                value:
+                                  /^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$/,
+                                message: "Số điện thoại không hợp lệ",
+                              },
+                            })}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-slate-900 font-bold"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
+                            Email cá nhân
+                          </label>
+                          <input
+                            {...register("personalEmail")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-slate-900 font-bold"
+                          />
+                        </div>
+                        <div className="col-span-1 md:col-span-2 space-y-2">
+                          <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
+                            Địa chỉ thường trú
+                          </label>
+                          <input
+                            {...register("address")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-slate-900 font-bold"
+                          />
+                        </div>
+                      </div>
                     </div>
+
+                    {/* Work Info Section */}
+                    <div className="space-y-6">
+                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest border-b border-gray-100 pb-2">
+                        Thông tin công tác
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
+                            Đơn vị công tác
+                          </label>
+                          <input
+                            {...register("unitName")}
+                            placeholder="VD: Khoa CNTT, Nhà máy 1..."
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-slate-900 font-bold"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
+                            Tình trạng công tác
+                          </label>
+                          <select
+                            {...register("workStatus")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-slate-900 font-bold"
+                          >
+                            {Object.values(WorkStatus).map((status) => (
+                              <option key={status} value={status}>
+                                {WorkStatusLabels[status]}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
+                            Chức vụ công đoàn
+                          </label>
+                          <select
+                            {...register("unionPosition")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-slate-900 font-bold"
+                          >
+                            {Object.values(UnionPosition).map((pos) => (
+                              <option key={pos} value={pos}>
+                                {UnionPositionLabels[pos]}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
+                            Phòng ban (Nội bộ)
+                          </label>
+                          <select
+                            {...register("department")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-slate-900 font-bold"
+                          >
+                            {Object.values(Department).map((dept) => (
+                              <option key={dept} value={dept}>
+                                {DepartmentLabels[dept]}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Professional Info Section */}
+                    <div className="space-y-6">
+                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest border-b border-gray-100 pb-2">
+                        Hồ sơ chuyên môn
+                      </h3>
+                      <div className="grid grid-cols-1 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
+                            Trình độ & Học vấn
+                          </label>
+                          <textarea
+                            {...register("education")}
+                            rows={3}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-slate-900 font-bold"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
+                            Kinh nghiệm công tác & Nghiên cứu
+                          </label>
+                          <textarea
+                            {...register("experience")}
+                            rows={3}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-slate-900 font-bold"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
+                            Kỹ năng & Năng lực
+                          </label>
+                          <textarea
+                            {...register("skills")}
+                            rows={3}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-slate-900 font-bold"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
+                            Thành tích & Khen thưởng
+                          </label>
+                          <textarea
+                            {...register("achievements")}
+                            rows={3}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-slate-900 font-bold"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
                     <button
                       type="submit"
                       disabled={isSubmitting}
@@ -533,103 +686,172 @@ export default function ProfilePage() {
                   </form>
                 ) : (
                   <div className="space-y-12 animate-in fade-in duration-700">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                      <div className="group">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center space-x-2">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                            />
-                          </svg>
-                          <span>Số điện thoại</span>
-                        </p>
-                        <p className="text-xl text-slate-900 font-bold group-hover:text-blue-600 transition-colors">
-                          {profile?.phoneNumber || "Chưa thiết lập"}
-                        </p>
-                      </div>
-                      <div className="group">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center space-x-2">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                            />
-                          </svg>
-                          <span>Email cá nhân</span>
-                        </p>
-                        <p className="text-xl text-slate-900 font-bold group-hover:text-blue-600 transition-colors">
-                          {profile?.personalEmail || "Chưa thiết lập"}
-                        </p>
+                    {/* View Mode: Personal */}
+                    <div>
+                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest border-b border-gray-100 pb-4 mb-6">
+                        Thông tin cá nhân
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="group">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                            Họ và tên
+                          </p>
+                          <p className="text-lg font-bold text-slate-900">
+                            {profile?.fullName}
+                          </p>
+                        </div>
+                        <div className="group">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                            Giới tính
+                          </p>
+                          <p className="text-lg font-bold text-slate-900">
+                            {profile?.gender === "Male"
+                              ? "Nam"
+                              : profile?.gender === "Female"
+                                ? "Nữ"
+                                : "Khác"}
+                          </p>
+                        </div>
+                        <div className="group">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                            Ngày sinh
+                          </p>
+                          <p className="text-lg font-bold text-slate-900">
+                            {profile?.dateOfBirth
+                              ? new Date(
+                                  profile.dateOfBirth,
+                                ).toLocaleDateString("vi-VN")
+                              : "---"}
+                          </p>
+                        </div>
+                        <div className="group">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                            CCCD / CMND
+                          </p>
+                          <p className="text-lg font-bold text-slate-900">
+                            {profile?.nationalId || "---"}
+                          </p>
+                        </div>
+                        <div className="group md:col-span-2">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                            Địa chỉ
+                          </p>
+                          <p className="text-lg font-bold text-slate-900">
+                            {profile?.address || "---"}
+                          </p>
+                        </div>
+                        <div className="group">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                            Email
+                          </p>
+                          <p className="text-lg font-bold text-slate-900">
+                            {profile?.personalEmail || "---"}
+                          </p>
+                        </div>
+                        <div className="group">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                            SĐT
+                          </p>
+                          <p className="text-lg font-bold text-slate-900">
+                            {profile?.phoneNumber || "---"}
+                          </p>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="group">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center space-x-2">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                        </svg>
-                        <span>Địa chỉ thường trú</span>
-                      </p>
-                      <p className="text-xl text-slate-900 font-bold leading-relaxed group-hover:text-blue-600 transition-colors">
-                        {profile?.address || "Chưa thiết lập"}
-                      </p>
+                    {/* View Mode: Work */}
+                    <div>
+                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest border-b border-gray-100 pb-4 mb-6">
+                        Thông tin công tác
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="group">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                            Đơn vị công tác
+                          </p>
+                          <p className="text-lg font-bold text-slate-900">
+                            {profile?.unitName || "---"}
+                          </p>
+                        </div>
+                        <div className="group">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                            Tình trạng
+                          </p>
+                          <span
+                            className={`inline-flex px-3 py-1 rounded-lg text-sm font-black ${
+                              profile?.workStatus === WorkStatus.ACTIVE
+                                ? "bg-green-50 text-green-600"
+                                : profile?.workStatus === WorkStatus.TRANSFERRED
+                                  ? "bg-orange-50 text-orange-600"
+                                  : "bg-red-50 text-red-600"
+                            }`}
+                          >
+                            {profile?.workStatus
+                              ? WorkStatusLabels[profile.workStatus]
+                              : "---"}
+                          </span>
+                        </div>
+                        <div className="group">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                            Chức vụ CĐ
+                          </p>
+                          <p className="text-lg font-bold text-slate-900">
+                            {profile?.unionPosition
+                              ? UnionPositionLabels[profile.unionPosition]
+                              : "---"}
+                          </p>
+                        </div>
+                        <div className="group">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                            Phòng ban
+                          </p>
+                          <p className="text-lg font-bold text-slate-900">
+                            {profile?.department
+                              ? DepartmentLabels[profile.department]
+                              : "---"}
+                          </p>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-10 border-t border-gray-50">
-                      <div className="group">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                          Giới tính
-                        </p>
-                        <p className="text-lg text-slate-700 font-bold group-hover:text-blue-600 transition-colors uppercase tracking-wide">
-                          {profile?.gender === "Male"
-                            ? "Nam"
-                            : profile?.gender === "Female"
-                              ? "Nữ"
-                              : profile?.gender || "---"}
-                        </p>
-                      </div>
-                      <div className="group">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                          Ngày sinh
-                        </p>
-                        <p className="text-lg text-slate-700 font-bold group-hover:text-blue-600 transition-colors uppercase tracking-wide">
-                          {profile?.dateOfBirth
-                            ? new Date(profile.dateOfBirth).toLocaleDateString(
-                                "vi-VN",
-                              )
-                            : "---"}
-                        </p>
+                    {/* View Mode: Professional */}
+                    <div>
+                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest border-b border-gray-100 pb-4 mb-6">
+                        Hồ sơ chuyên môn
+                      </h3>
+                      <div className="space-y-8">
+                        <div className="group">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                            Trình độ & Học vấn
+                          </p>
+                          <p className="text-base text-slate-700 whitespace-pre-line">
+                            {profile?.education || "Chưa cập nhật"}
+                          </p>
+                        </div>
+                        <div className="group">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                            Kinh nghiệm
+                          </p>
+                          <p className="text-base text-slate-700 whitespace-pre-line">
+                            {profile?.experience || "Chưa cập nhật"}
+                          </p>
+                        </div>
+                        <div className="group">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                            Kỹ năng
+                          </p>
+                          <p className="text-base text-slate-700 whitespace-pre-line">
+                            {profile?.skills || "Chưa cập nhật"}
+                          </p>
+                        </div>
+                        <div className="group">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                            Thành tích
+                          </p>
+                          <p className="text-base text-slate-700 whitespace-pre-line">
+                            {profile?.achievements || "Chưa cập nhật"}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -4,8 +4,10 @@ import adminService from "../services/admin.service";
 import {
   Department,
   UnionPosition,
+  WorkStatus,
   DepartmentLabels,
   UnionPositionLabels,
+  WorkStatusLabels,
   OFFICER_TAGS,
 } from "../types/profile";
 import type {
@@ -67,6 +69,7 @@ const AdminOfficerListPage: React.FC = () => {
           department: currentFilters.department || undefined,
           unionPosition: currentFilters.unionPosition || undefined,
           isActive: currentFilters.isActive || undefined,
+          tag: currentFilters.tag || undefined,
         };
         const res = await adminService.getOfficers(cleanParams);
         setOfficers(res.data);
@@ -100,6 +103,7 @@ const AdminOfficerListPage: React.FC = () => {
     filters.department,
     filters.unionPosition,
     filters.isActive,
+    filters.tag,
     fetchOfficers,
   ]);
 
@@ -118,12 +122,10 @@ const AdminOfficerListPage: React.FC = () => {
     setIsSubmitting(true);
     try {
       if (editingOfficer) {
-        await adminService.updateOfficer(editingOfficer.id, {
-          fullName: data.fullName,
-          employeeId: data.employeeId,
-          department: data.department,
-          unionPosition: data.unionPosition,
-        });
+        // Exclude email and password from update payload if not needed or strictly handled
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { email, password, ...updateData } = data;
+        await adminService.updateOfficer(editingOfficer.id, updateData);
         alert("Cập nhật thông tin cán bộ thành công!");
       } else {
         await adminService.createOfficer(data);
@@ -142,17 +144,43 @@ const AdminOfficerListPage: React.FC = () => {
     }
   };
 
-  const handleEditClick = (officer: Officer) => {
+  const handleEditClick = async (officer: Officer) => {
     setEditingOfficer(officer);
-    reset({
-      fullName: officer.fullName,
-      email: officer.email,
-      employeeId: officer.employeeId || "",
-      department: officer.department,
-      unionPosition: officer.unionPosition,
-      password: "dummy-password", // Password is required by DTO but we won't change it on update
-    });
     setIsModalOpen(true);
+    try {
+      // Fetch full details
+      const fullDetails = await adminService.getOfficerById(officer.id);
+      const profile = fullDetails.profile || {};
+
+      reset({
+        fullName: profile.fullName || officer.fullName,
+        email: fullDetails.email || officer.email,
+        employeeId: profile.employeeId || officer.employeeId || "",
+        department: profile.department || officer.department,
+        unionPosition: profile.unionPosition || officer.unionPosition,
+        password: "dummy-password",
+        // Extended fields
+        phoneNumber: profile.phoneNumber || "",
+        personalEmail: profile.personalEmail || "",
+        address: profile.address || "",
+        dateOfBirth: profile.dateOfBirth
+          ? profile.dateOfBirth.split("T")[0]
+          : "",
+        gender: profile.gender || "Male",
+        nationalId: profile.nationalId || "",
+        unitName: profile.unitName || "",
+        workStatus: profile.workStatus || WorkStatus.ACTIVE,
+        isPartyMember: profile.isPartyMember || false,
+        joinDate: profile.joinDate ? profile.joinDate.split("T")[0] : "",
+        education: profile.education || "",
+        experience: profile.experience || "",
+        skills: profile.skills || "",
+        achievements: profile.achievements || "",
+      });
+    } catch (error) {
+      console.error("Failed to fetch officer details", error);
+      alert("Không thể tải thông tin chi tiết cán bộ");
+    }
   };
 
   const handleDeleteClick = async (id: string) => {
@@ -810,6 +838,175 @@ const AdminOfficerListPage: React.FC = () => {
                           {formErrors.unionPosition.message}
                         </p>
                       )}
+                    </div>
+
+                    {/* Extended Info Section */}
+                    <div className="pt-4 border-t border-gray-100 sm:col-span-2">
+                      <h4 className="text-sm font-black text-gray-900 uppercase tracking-widest mb-4">
+                        Thông tin cá nhân & Liên hệ
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
+                            Ngày sinh
+                          </label>
+                          <input
+                            type="date"
+                            {...register("dateOfBirth")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
+                            Giới tính
+                          </label>
+                          <select
+                            {...register("gender")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                          >
+                            <option value="Male">Nam</option>
+                            <option value="Female">Nữ</option>
+                            <option value="Other">Khác</option>
+                          </select>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
+                            CCCD / CMND
+                          </label>
+                          <input
+                            {...register("nationalId")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
+                            Số điện thoại
+                          </label>
+                          <input
+                            {...register("phoneNumber")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                          />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
+                            Email cá nhân
+                          </label>
+                          <input
+                            {...register("personalEmail")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                          />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
+                            Địa chỉ
+                          </label>
+                          <input
+                            {...register("address")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100 sm:col-span-2">
+                      <h4 className="text-sm font-black text-gray-900 uppercase tracking-widest mb-4">
+                        Thông tin công tác
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
+                            Đơn vị công tác
+                          </label>
+                          <input
+                            {...register("unitName")}
+                            placeholder="VD: Khoa CNTT"
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
+                            Tình trạng công tác
+                          </label>
+                          <select
+                            {...register("workStatus")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                          >
+                            {Object.values(WorkStatus).map((status) => (
+                              <option key={status} value={status}>
+                                {WorkStatusLabels[status]}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
+                            Ngày vào công đoàn
+                          </label>
+                          <input
+                            type="date"
+                            {...register("joinDate")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                          />
+                        </div>
+                        <div className="space-y-1 flex items-center pt-6">
+                          <input
+                            type="checkbox"
+                            {...register("isPartyMember")}
+                            className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300 mr-2"
+                          />
+                          <label className="text-sm font-bold text-gray-700">
+                            Là Đảng viên
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100 sm:col-span-2">
+                      <h4 className="text-sm font-black text-gray-900 uppercase tracking-widest mb-4">
+                        Hồ sơ chuyên môn
+                      </h4>
+                      <div className="space-y-4">
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
+                            Trình độ & Học vấn
+                          </label>
+                          <textarea
+                            rows={2}
+                            {...register("education")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
+                            Kinh nghiệm công tác & Nghiên cứu
+                          </label>
+                          <textarea
+                            rows={2}
+                            {...register("experience")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
+                            Kỹ năng & Năng lực
+                          </label>
+                          <textarea
+                            rows={2}
+                            {...register("skills")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
+                            Thành tích - Khen thưởng
+                          </label>
+                          <textarea
+                            rows={2}
+                            {...register("achievements")}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
 

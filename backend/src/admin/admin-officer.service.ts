@@ -6,6 +6,8 @@ import {
   OfficerProfile,
   Department,
   UnionPosition,
+  WorkStatus,
+  Gender,
 } from '../profile/entities/officer-profile.entity';
 import { OfficerQueryDto } from './dto/officer-query.dto';
 import { OfficerHistory, ChangeType } from './entities/officer-history.entity';
@@ -248,6 +250,57 @@ export class AdminOfficerService {
       'Cán bộ trẻ',
     ];
 
+    // Helper to pick random item
+    const rand = (list: any[]) => list[Math.floor(Math.random() * list.length)];
+    // Helper for random date between start and end
+    const randomDate = (start: Date, end: Date) =>
+      new Date(
+        start.getTime() + Math.random() * (end.getTime() - start.getTime()),
+      );
+
+    const eduList = [
+      'Đại học Luật Hà Nội - Cử nhân Luật\nHọc viện Chính trị - Cao cấp lý luận chính trị',
+      'Đại học Kinh tế Quốc dân - Cử nhân Kinh tế\nThạc sĩ Quản trị Kinh doanh',
+      'Đại học Bách Khoa Hà Nội - Kỹ sư CNTT\nVăn bằng 2 Luật',
+      'Học viện Hành chính Quốc gia - Cử nhân Quản lý nhà nước',
+      'Đại học Công đoàn - Cử nhân Công tác xã hội',
+    ];
+    const expList = [
+      '2010-2015: Chuyên viên tại Ban Pháp chế\n2015-2020: Phó Ban Pháp chế\n2020-Nay: Trưởng Ban Chính sách Pháp luật',
+      '2012-2016: Cán bộ Công đoàn cơ sở\n2016-Nay: Chuyên viên Ban Tổ chức',
+      '2015-2018: Giảng viên Đại học\n2018-Nay: Cán bộ chuyên trách',
+      '2018-Nay: Chuyên viên Văn phòng',
+      '2019-2022: Bí thư Đoàn thanh niên\n2022-Nay: Chuyên viên Ban Tuyên giáo',
+    ];
+    const skillList = [
+      'Lãnh đạo, Quản lý dự án, Đàm phán, Thuyết trình public',
+      'Tin học văn phòng, Tiếng Anh giao tiếp, Kỹ năng mềm',
+      'Tổ chức sự kiện, Viết báo cáo, Phân tích số liệu',
+      'Giải quyết xung đột, Tư vấn pháp luật',
+      'Kỹ năng làm việc nhóm, Quản lý thời gian, Tư duy phản biện',
+    ];
+    const achieveList = [
+      'Huân chương Lao động hạng Ba (2019)\nBằng khen Thủ tướng Chính phủ (2022)',
+      'Chiến sĩ thi đua cấp cơ sở (2020, 2021)',
+      'Bằng khen Tổng Liên đoàn (2023)',
+      'Giấy khen Chủ tịch UBND Thành phố (2021)',
+      'Bằng khen Công đoàn ngành (2022)',
+    ];
+    const unitList = [
+      'Liên đoàn Lao động TP',
+      'Công đoàn Ngành Giáo dục',
+      'Công đoàn Khu Công nghiệp',
+      'Công đoàn Viên chức TP',
+      'Công đoàn Ngành Y tế',
+    ];
+    const addressList = [
+      'Đường Láng, Hà Nội',
+      'Quận Cầu Giấy, Hà Nội',
+      'Quận Hoàn Kiếm, Hà Nội',
+      'Quận Hai Bà Trưng, Hà Nội',
+      'Quận Thanh Xuân, Hà Nội',
+    ];
+
     let updatedCount = 0;
 
     for (const user of users) {
@@ -259,6 +312,47 @@ export class AdminOfficerService {
           .sort(() => 0.5 - Math.random())
           .slice(0, Math.floor(Math.random() * 2) + 1);
         user.profile.tags = randomTags;
+        await this.profileRepository.save(user.profile);
+      }
+
+      // Seed Extended Profile Info if empty
+      if (!user.profile.education) {
+        user.profile.education = rand(eduList);
+        user.profile.experience = rand(expList);
+        user.profile.skills = rand(skillList);
+        user.profile.achievements = rand(achieveList);
+        user.profile.unitName = rand(unitList);
+        // 90% Active, 5% Transferred, 5% Retired
+        const statusRand = Math.random();
+        user.profile.workStatus =
+          statusRand > 0.9
+            ? WorkStatus.RETIRED
+            : statusRand > 0.85
+              ? WorkStatus.TRANSFERRED
+              : WorkStatus.ACTIVE;
+        user.profile.gender = Math.random() > 0.5 ? Gender.MALE : Gender.FEMALE;
+        user.profile.dateOfBirth = randomDate(
+          new Date(1975, 0, 1),
+          new Date(1995, 0, 1),
+        );
+        user.profile.nationalId =
+          '0' +
+          Math.floor(Math.random() * 100000000000)
+            .toString()
+            .padStart(11, '0');
+        user.profile.phoneNumber =
+          '09' +
+          Math.floor(Math.random() * 100000000)
+            .toString()
+            .padStart(8, '0');
+        user.profile.personalEmail = user.email;
+        user.profile.address = `${Math.floor(Math.random() * 100)} ${rand(addressList)}`;
+        user.profile.joinDate = randomDate(
+          new Date(2010, 0, 1),
+          new Date(2023, 0, 1),
+        );
+        user.profile.isPartyMember = Math.random() > 0.4;
+
         await this.profileRepository.save(user.profile);
       }
 

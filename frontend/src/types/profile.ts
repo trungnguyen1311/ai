@@ -34,6 +34,19 @@ export const UnionPositionLabels: Record<UnionPosition, string> = {
   [UnionPosition.SPECIALIZED_OFFICER]: "Cán bộ chuyên trách",
 };
 
+export const WorkStatus = {
+  ACTIVE: "ACTIVE",
+  TRANSFERRED: "TRANSFERRED",
+  RETIRED: "RETIRED",
+} as const;
+export type WorkStatus = (typeof WorkStatus)[keyof typeof WorkStatus];
+
+export const WorkStatusLabels: Record<WorkStatus, string> = {
+  [WorkStatus.ACTIVE]: "Đang công tác",
+  [WorkStatus.TRANSFERRED]: "Chuyển đơn vị",
+  [WorkStatus.RETIRED]: "Nghỉ hưu / Nghỉ việc",
+};
+
 export interface OfficerProfile {
   id: string;
   userId: string;
@@ -49,6 +62,12 @@ export interface OfficerProfile {
   department: Department;
   joinDate: string;
   isPartyMember: boolean;
+  unitName?: string;
+  workStatus: WorkStatus;
+  education?: string;
+  experience?: string;
+  skills?: string;
+  achievements?: string;
   tags?: string[];
   createdAt: string;
   updatedAt: string;
@@ -58,6 +77,17 @@ export interface UpdateProfileDto {
   phoneNumber?: string;
   personalEmail?: string;
   address?: string;
+  fullName?: string;
+  dateOfBirth?: string;
+  gender?: Gender;
+  nationalId?: string;
+  unitName?: string;
+  unionPosition?: UnionPosition;
+  workStatus?: WorkStatus;
+  education?: string;
+  experience?: string;
+  skills?: string;
+  achievements?: string;
   tags?: string[];
 }
 
@@ -70,6 +100,17 @@ export interface CreateProfileDto {
   gender?: Gender;
   isPartyMember?: boolean;
   tags?: string[];
+  unitName?: string;
+  workStatus?: WorkStatus;
+  education?: string;
+  experience?: string;
+  skills?: string;
+  achievements?: string;
+  phoneNumber?: string;
+  personalEmail?: string;
+  address?: string;
+  nationalId?: string;
+  joinDate?: string;
 }
 
 export interface AdminCreateOfficerDto extends CreateProfileDto {

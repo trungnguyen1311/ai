@@ -31,6 +31,12 @@ export enum UnionPosition {
   SPECIALIZED_OFFICER = 'SPECIALIZED_OFFICER',
 }
 
+export enum WorkStatus {
+  ACTIVE = 'ACTIVE',
+  TRANSFERRED = 'TRANSFERRED',
+  RETIRED = 'RETIRED',
+}
+
 @Entity('officer_profiles')
 export class OfficerProfile {
   @PrimaryGeneratedColumn('uuid')
@@ -77,6 +83,29 @@ export class OfficerProfile {
 
   @Column({ type: 'enum', enum: Department, nullable: false })
   department: Department;
+
+  @Column({ name: 'unit_name', nullable: true })
+  unitName: string;
+
+  @Column({
+    type: 'enum',
+    enum: WorkStatus,
+    name: 'work_status',
+    default: WorkStatus.ACTIVE,
+  })
+  workStatus: WorkStatus;
+
+  @Column({ type: 'text', nullable: true })
+  education: string;
+
+  @Column({ type: 'text', nullable: true })
+  experience: string;
+
+  @Column({ type: 'text', nullable: true })
+  skills: string;
+
+  @Column({ type: 'text', nullable: true })
+  achievements: string;
 
   @Column({ type: 'date', name: 'join_date', default: () => 'CURRENT_DATE' })
   joinDate: Date;

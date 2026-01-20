@@ -13,6 +13,7 @@ import {
   Gender,
   Department,
   UnionPosition,
+  WorkStatus,
 } from '../entities/officer-profile.entity';
 
 export class UpdateProfileDto {
@@ -30,6 +31,51 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsString()
   address?: string;
+
+  @IsOptional()
+  @IsString()
+  fullName?: string;
+
+  @IsOptional()
+  @IsDateString()
+  @Type(() => Date)
+  dateOfBirth?: Date;
+
+  @IsOptional()
+  @IsEnum(Gender)
+  gender?: Gender;
+
+  @IsOptional()
+  @IsString()
+  nationalId?: string;
+
+  @IsOptional()
+  @IsString()
+  unitName?: string;
+
+  @IsOptional()
+  @IsEnum(UnionPosition)
+  unionPosition?: UnionPosition;
+
+  @IsOptional()
+  @IsEnum(WorkStatus)
+  workStatus?: WorkStatus;
+
+  @IsOptional()
+  @IsString()
+  education?: string;
+
+  @IsOptional()
+  @IsString()
+  experience?: string;
+
+  @IsOptional()
+  @IsString()
+  skills?: string;
+
+  @IsOptional()
+  @IsString()
+  achievements?: string;
 }
 
 export class CreateProfileDto {
@@ -70,4 +116,28 @@ export class CreateProfileDto {
   @IsDateString()
   @Type(() => Date)
   joinDate?: Date;
+
+  @IsOptional()
+  @IsString()
+  unitName?: string;
+
+  @IsOptional()
+  @IsEnum(WorkStatus)
+  workStatus?: WorkStatus;
+
+  @IsOptional()
+  @IsString()
+  education?: string;
+
+  @IsOptional()
+  @IsString()
+  experience?: string;
+
+  @IsOptional()
+  @IsString()
+  skills?: string;
+
+  @IsOptional()
+  @IsString()
+  achievements?: string;
 }
