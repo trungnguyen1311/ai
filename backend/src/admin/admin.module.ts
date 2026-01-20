@@ -4,6 +4,8 @@ import { User } from '../users/user.entity';
 import { OfficerProfile } from '../profile/entities/officer-profile.entity';
 import { AdminOfficerController } from './admin-officer.controller';
 import { AdminOfficerService } from './admin-officer.service';
+import { AdminDashboardController } from './admin-dashboard.controller';
+import { AdminDashboardService } from './admin-dashboard.service';
 
 import { AuthModule } from '../auth/auth.module';
 import { ProfileModule } from '../profile/profile.module';
@@ -14,7 +16,7 @@ import { ProfileModule } from '../profile/profile.module';
     AuthModule,
     ProfileModule,
   ],
-  controllers: [AdminOfficerController],
-  providers: [AdminOfficerService],
+  controllers: [AdminOfficerController, AdminDashboardController],
+  providers: [AdminOfficerService, AdminDashboardService],
 })
 export class AdminModule {}

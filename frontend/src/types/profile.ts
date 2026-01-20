@@ -73,3 +73,24 @@ export interface AdminCreateOfficerDto extends CreateProfileDto {
   email: string;
   password: string;
 }
+
+export interface DashboardStats {
+  officerStats: {
+    total: number;
+    byStatus: {
+      active: number;
+      inactive: number;
+    };
+    byDepartment: Array<{ type: Department; count: number }>;
+    byPosition: Array<{ type: UnionPosition; count: number }>;
+  };
+  timeStats: {
+    joinTrend: Array<{ label: string; count: number }>;
+  };
+  fundStats: {
+    totalAmount: number;
+    currency: string;
+    byDepartment: Array<{ type: Department; amount: number }>;
+    yearlyTrend: Array<{ year: number; amount: number }>;
+  };
+}

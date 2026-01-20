@@ -3,6 +3,7 @@ import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import ProfilePage from "../pages/ProfilePage";
 import DashboardPage from "../pages/DashboardPage";
+import AdminDashboardPage from "../pages/AdminDashboardPage";
 import AdminOfficerListPage from "../pages/AdminOfficerListPage";
 import AdminOfficerDetailPage from "../pages/AdminOfficerDetailPage";
 import ProtectedRoute from "../components/ProtectedRoute";
@@ -10,7 +11,15 @@ import AdminLayout from "../components/AdminLayout";
 import { useAuth } from "../context/AuthContext";
 
 export default function AppRoutes() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <Routes>
@@ -33,6 +42,7 @@ export default function AppRoutes() {
           {/* Admin Routes */}
           {user?.role === "ADMIN" && (
             <>
+              <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
               <Route
                 path="/admin/officers"
                 element={<AdminOfficerListPage />}

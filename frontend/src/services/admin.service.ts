@@ -44,6 +44,12 @@ const adminService = {
     });
     return response.data;
   },
+  getDashboardStats: async () => {
+    const response = await axios.get(`${API_URL}/admin/dashboard/stats`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+    return response.data;
+  },
 };
 
 export default adminService;
