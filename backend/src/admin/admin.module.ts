@@ -10,9 +10,11 @@ import { AdminDashboardService } from './admin-dashboard.service';
 import { AuthModule } from '../auth/auth.module';
 import { ProfileModule } from '../profile/profile.module';
 
+import { OfficerHistory } from './entities/officer-history.entity';
+
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, OfficerProfile]),
+    TypeOrmModule.forFeature([User, OfficerProfile, OfficerHistory]),
     AuthModule,
     ProfileModule,
   ],

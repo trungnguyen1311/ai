@@ -40,4 +40,8 @@ export class OfficerQueryDto {
   @IsOptional()
   @IsBooleanString()
   isActive?: string;
+
+  @IsOptional()
+  @IsString()
+  tag?: string;
 }

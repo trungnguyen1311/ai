@@ -13,6 +13,7 @@ const adminService = {
       department?: Department;
       unionPosition?: UnionPosition;
       isActive?: string;
+      tag?: string;
     } = {},
   ) => {
     const response = await axios.get(`${API_URL}/admin/officers`, {
@@ -29,6 +30,16 @@ const adminService = {
     return response.data;
   },
 
+  getOfficerHistory: async (id: string) => {
+    const response = await axios.get(
+      `${API_URL}/admin/officers/${id}/history`,
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      },
+    );
+    return response.data;
+  },
+
   updateOfficerStatus: async (id: string, isActive: boolean) => {
     const response = await axios.patch(
       `${API_URL}/admin/officers/${id}/status`,
@@ -40,6 +51,22 @@ const adminService = {
 
   createOfficer: async (data: AdminCreateOfficerDto) => {
     const response = await axios.post(`${API_URL}/admin/officers`, data, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+    return response.data;
+  },
+  updateOfficer: async (id: string, data: Partial<AdminCreateOfficerDto>) => {
+    const response = await axios.patch(
+      `${API_URL}/admin/officers/${id}`,
+      data,
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      },
+    );
+    return response.data;
+  },
+  deleteOfficer: async (id: string) => {
+    const response = await axios.delete(`${API_URL}/admin/officers/${id}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     });
     return response.data;

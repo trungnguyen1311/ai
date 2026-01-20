@@ -84,6 +84,9 @@ export class OfficerProfile {
   @Column({ name: 'is_party_member', default: false })
   isPartyMember: boolean;
 
+  @Column({ type: 'text', array: true, default: '{}' })
+  tags: string[];
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

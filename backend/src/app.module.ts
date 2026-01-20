@@ -9,6 +9,7 @@ import { ProfileModule } from './profile/profile.module';
 import { AdminModule } from './admin/admin.module';
 import { User } from './users/user.entity';
 import { OfficerProfile } from './profile/entities/officer-profile.entity';
+import { OfficerHistory } from './admin/entities/officer-history.entity';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { OfficerProfile } from './profile/entities/officer-profile.entity';
       username: process.env.DB_USERNAME || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'auth_db',
-      entities: [User, OfficerProfile],
+      entities: [User, OfficerProfile, OfficerHistory],
       synchronize: true, // Auto-schema sync for MVP
     }),
     AuthModule,

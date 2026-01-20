@@ -49,6 +49,7 @@ export interface OfficerProfile {
   department: Department;
   joinDate: string;
   isPartyMember: boolean;
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -57,6 +58,7 @@ export interface UpdateProfileDto {
   phoneNumber?: string;
   personalEmail?: string;
   address?: string;
+  tags?: string[];
 }
 
 export interface CreateProfileDto {
@@ -67,12 +69,30 @@ export interface CreateProfileDto {
   dateOfBirth?: string;
   gender?: Gender;
   isPartyMember?: boolean;
+  tags?: string[];
 }
 
 export interface AdminCreateOfficerDto extends CreateProfileDto {
   email: string;
   password: string;
 }
+
+export interface OfficerHistory {
+  id: string;
+  officerId: string;
+  changeType: "unit" | "status";
+  oldValue: string;
+  newValue: string;
+  note: string;
+  changeDate: string;
+}
+
+export const OFFICER_TAGS = [
+  "Cán bộ nguồn",
+  "Chuẩn bị nghỉ hưu",
+  "Cán bộ nữ",
+  "Cán bộ trẻ",
+];
 
 export interface DashboardStats {
   officerStats: {

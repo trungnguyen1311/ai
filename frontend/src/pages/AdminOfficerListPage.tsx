@@ -6,6 +6,7 @@ import {
   UnionPosition,
   DepartmentLabels,
   UnionPositionLabels,
+  OFFICER_TAGS,
 } from "../types/profile";
 import type {
   Department as DeptType,
@@ -22,6 +23,7 @@ interface Officer {
   isActive: boolean;
   unionPosition: PosType;
   department: DeptType;
+  employeeId?: string;
 }
 
 const AdminOfficerListPage: React.FC = () => {
@@ -32,6 +34,7 @@ const AdminOfficerListPage: React.FC = () => {
     department: "" as DeptType | "",
     unionPosition: "" as PosType | "",
     isActive: "",
+    tag: "",
   });
   const [meta, setMeta] = useState({
     total: 0,
@@ -41,7 +44,9 @@ const AdminOfficerListPage: React.FC = () => {
   });
   const [searchInput, setSearchInput] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingOfficer, setEditingOfficer] = useState<Officer | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const {
@@ -77,7 +82,7 @@ const AdminOfficerListPage: React.FC = () => {
 
   useEffect(() => {
     fetchOfficers();
-  }, []);
+  }, [fetchOfficers]);
 
   // Debounced search effect: searchInput -> filters.search
   useEffect(() => {
@@ -112,17 +117,61 @@ const AdminOfficerListPage: React.FC = () => {
   const onCreateSubmit = async (data: AdminCreateOfficerDto) => {
     setIsSubmitting(true);
     try {
-      await adminService.createOfficer(data);
+      if (editingOfficer) {
+        await adminService.updateOfficer(editingOfficer.id, {
+          fullName: data.fullName,
+          employeeId: data.employeeId,
+          department: data.department,
+          unionPosition: data.unionPosition,
+        });
+        alert("Cập nhật thông tin cán bộ thành công!");
+      } else {
+        await adminService.createOfficer(data);
+        alert("Đã tạo cán bộ mới thành công!");
+      }
       setIsModalOpen(false);
+      setEditingOfficer(null);
       reset();
-      fetchOfficers(1);
-      alert("Đã tạo cán bộ mới thành công!");
+      fetchOfficers(meta.page);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
-      console.error("Failed to create officer", error);
-      alert(error.response?.data?.message || "Không thể tạo cán bộ mới");
+      console.error("Failed to save officer", error);
+      alert(error.response?.data?.message || "Không thể lưu thông tin cán bộ");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleEditClick = (officer: Officer) => {
+    setEditingOfficer(officer);
+    reset({
+      fullName: officer.fullName,
+      email: officer.email,
+      employeeId: officer.employeeId || "",
+      department: officer.department,
+      unionPosition: officer.unionPosition,
+      password: "dummy-password", // Password is required by DTO but we won't change it on update
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteClick = async (id: string) => {
+    if (
+      window.confirm(
+        "Bạn có chắc chắn muốn xóa cán bộ này khỏi hệ thống? Phanh động không thể hoàn tác.",
+      )
+    ) {
+      try {
+        setDeletingId(id);
+        await adminService.deleteOfficer(id);
+        fetchOfficers(meta.page);
+        alert("Đã xóa cán bộ thành công!");
+      } catch (error) {
+        console.error("Failed to delete officer", error);
+        alert("Không thể xóa cán bộ. Vui lòng thử lại sau.");
+      } finally {
+        setDeletingId(null);
+      }
     }
   };
 
@@ -273,6 +322,28 @@ const AdminOfficerListPage: React.FC = () => {
             <option value="false">Đã bị chặn</option>
           </select>
         </div>
+        <div>
+          <label
+            htmlFor="tag"
+            className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2"
+          >
+            Phân loại
+          </label>
+          <select
+            name="tag"
+            id="tag"
+            value={filters.tag}
+            onChange={handleFilterChange}
+            className="block w-full px-3 py-2 border border-gray-200 rounded-xl bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm transition-all duration-200"
+          >
+            <option value="">Tất cả phân loại</option>
+            {OFFICER_TAGS.map((tag) => (
+              <option key={tag} value={tag}>
+                {tag}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -395,14 +466,78 @@ const AdminOfficerListPage: React.FC = () => {
                       </div>
                     </td>
                     <td className="whitespace-nowrap py-5 pl-3 pr-6 text-right text-sm">
-                      <button
-                        onClick={() =>
-                          navigate(`/admin/officers/${officer.id}`)
-                        }
-                        className="inline-flex items-center px-3 py-1.5 border border-blue-100 text-xs font-bold rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white transition-all duration-200 shadow-sm hover:shadow-md"
-                      >
-                        Chi tiết
-                      </button>
+                      <div className="flex items-center justify-end space-x-2">
+                        <button
+                          onClick={() =>
+                            navigate(`/admin/officers/${officer.id}`)
+                          }
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Chi tiết"
+                        >
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleEditClick(officer)}
+                          className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                          title="Sửa"
+                        >
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(officer.id)}
+                          disabled={deletingId === officer.id}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                          title="Xóa"
+                        >
+                          {deletingId === officer.id ? (
+                            <div className="w-5 h-5 border-2 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
+                          ) : (
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -520,10 +655,14 @@ const AdminOfficerListPage: React.FC = () => {
               <div className="bg-white px-8 pt-8 pb-6">
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="text-2xl font-black text-gray-900">
-                    Thêm cán bộ mới
+                    {editingOfficer ? "Cập nhật thông tin" : "Thêm cán bộ mới"}
                   </h3>
                   <button
-                    onClick={() => setIsModalOpen(false)}
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      setEditingOfficer(null);
+                      reset();
+                    }}
                     className="text-gray-400 hover:text-gray-500 transition-colors"
                   >
                     <svg
@@ -563,27 +702,29 @@ const AdminOfficerListPage: React.FC = () => {
                         </p>
                       )}
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
-                        Email tài khoản *
-                      </label>
-                      <input
-                        type="email"
-                        {...register("email", {
-                          required: "Vui lòng nhập email",
-                          pattern: {
-                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                            message: "Email không hợp lệ",
-                          },
-                        })}
-                        className={`w-full bg-gray-50 border ${formErrors.email ? "border-red-500" : "border-gray-200"} rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium`}
-                      />
-                      {formErrors.email && (
-                        <p className="text-[10px] text-red-500 mt-1 ml-1 font-bold italic">
-                          {formErrors.email.message}
-                        </p>
-                      )}
-                    </div>
+                    {!editingOfficer && (
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
+                          Email tài khoản *
+                        </label>
+                        <input
+                          type="email"
+                          {...register("email", {
+                            required: "Vui lòng nhập email",
+                            pattern: {
+                              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                              message: "Email không hợp lệ",
+                            },
+                          })}
+                          className={`w-full bg-gray-50 border ${formErrors.email ? "border-red-500" : "border-gray-200"} rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium`}
+                        />
+                        {formErrors.email && (
+                          <p className="text-[10px] text-red-500 mt-1 ml-1 font-bold italic">
+                            {formErrors.email.message}
+                          </p>
+                        )}
+                      </div>
+                    )}
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
                         Mã nhân viên *
@@ -601,27 +742,29 @@ const AdminOfficerListPage: React.FC = () => {
                         </p>
                       )}
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
-                        Mật khẩu tạm thời *
-                      </label>
-                      <input
-                        type="password"
-                        {...register("password", {
-                          required: "Vui lòng nhập mật khẩu",
-                          minLength: {
-                            value: 6,
-                            message: "Tối thiểu 6 ký tự",
-                          },
-                        })}
-                        className={`w-full bg-gray-50 border ${formErrors.password ? "border-red-500" : "border-gray-200"} rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium`}
-                      />
-                      {formErrors.password && (
-                        <p className="text-[10px] text-red-500 mt-1 ml-1 font-bold italic">
-                          {formErrors.password.message}
-                        </p>
-                      )}
-                    </div>
+                    {!editingOfficer && (
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
+                          Mật khẩu tạm thời *
+                        </label>
+                        <input
+                          type="password"
+                          {...register("password", {
+                            required: "Vui lòng nhập mật khẩu",
+                            minLength: {
+                              value: 6,
+                              message: "Tối thiểu 6 ký tự",
+                            },
+                          })}
+                          className={`w-full bg-gray-50 border ${formErrors.password ? "border-red-500" : "border-gray-200"} rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium`}
+                        />
+                        {formErrors.password && (
+                          <p className="text-[10px] text-red-500 mt-1 ml-1 font-bold italic">
+                            {formErrors.password.message}
+                          </p>
+                        )}
+                      </div>
+                    )}
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
                         Phòng ban *
@@ -673,7 +816,11 @@ const AdminOfficerListPage: React.FC = () => {
                   <div className="pt-4 flex items-center space-x-4">
                     <button
                       type="button"
-                      onClick={() => setIsModalOpen(false)}
+                      onClick={() => {
+                        setIsModalOpen(false);
+                        setEditingOfficer(null);
+                        reset();
+                      }}
                       className="flex-1 px-6 py-3.5 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-2xl transition-all"
                     >
                       Hủy bỏ
@@ -685,6 +832,8 @@ const AdminOfficerListPage: React.FC = () => {
                     >
                       {isSubmitting ? (
                         <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                      ) : editingOfficer ? (
+                        "Cập nhật thông tin"
                       ) : (
                         "Tạo tài khoản cán bộ"
                       )}
