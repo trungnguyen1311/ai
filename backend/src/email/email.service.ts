@@ -8,22 +8,22 @@ export class EmailService {
 
   constructor(private configService: ConfigService) {
     this.transporter = nodemailer.createTransport({
-      host: this.configService.get('SMTP_HOST'),
-      port: this.configService.get('SMTP_PORT'),
+      host: this.configService.get<string>('SMTP_HOST'),
+      port: this.configService.get<number>('SMTP_PORT'),
       secure: false, // true for 465, false for other ports
       auth: {
-        user: this.configService.get('SMTP_USER'),
-        pass: this.configService.get('SMTP_PASS'),
+        user: this.configService.get<string>('SMTP_USER'),
+        pass: this.configService.get<string>('SMTP_PASS'),
       },
     });
   }
 
   async sendEmailVerification(email: string, token: string) {
-    const frontendUrl = this.configService.get('FRONTEND_URL');
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
     const verificationUrl = `${frontendUrl}/verify-email?token=${token}`;
 
     const mailOptions = {
-      from: this.configService.get('SMTP_FROM'),
+      from: this.configService.get<string>('SMTP_FROM'),
       to: email,
       subject: 'Xác thực tài khoản - Union Officer Management',
       text: `
@@ -47,17 +47,25 @@ Union Officer Management Team
       await this.transporter.sendMail(mailOptions);
       console.log(`[EmailService] Verification email sent to ${email}`);
     } catch (error) {
-      console.error('[EmailService] Failed to send verification email:', error);
-      throw error;
+      console.error('-----------------------------------------');
+      console.error('[EmailService] GỬI MAIL THẤT BẠI!');
+      console.error(`[EmailService] Link xác thực của bạn: ${verificationUrl}`);
+      console.log(
+        'Lỗi chi tiết:',
+        error instanceof Error ? error.message : error,
+      );
+      console.error('-----------------------------------------');
+      // Không throw error ở đây để không làm gián đoạn luồng đăng ký khi đang test
+      return;
     }
   }
 
   async sendPasswordReset(email: string, token: string) {
-    const frontendUrl = this.configService.get('FRONTEND_URL');
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
     const resetUrl = `${frontendUrl}/reset-password?token=${token}`;
 
     const mailOptions = {
-      from: this.configService.get('SMTP_FROM'),
+      from: this.configService.get<string>('SMTP_FROM'),
       to: email,
       subject: 'Đặt lại mật khẩu - Union Officer Management',
       text: `
@@ -81,11 +89,15 @@ Union Officer Management Team
       await this.transporter.sendMail(mailOptions);
       console.log(`[EmailService] Password reset email sent to ${email}`);
     } catch (error) {
-      console.error(
-        '[EmailService] Failed to send password reset email:',
-        error,
+      console.error('-----------------------------------------');
+      console.error('[EmailService] GỬI MAIL ĐẶT LẠI MẬT KHẨU THẤT BẠI!');
+      console.error(`[EmailService] Link của bạn: ${resetUrl}`);
+      console.log(
+        'Lỗi chi tiết:',
+        error instanceof Error ? error.message : error,
       );
-      throw error;
+      console.error('-----------------------------------------');
+      return;
     }
   }
 }
