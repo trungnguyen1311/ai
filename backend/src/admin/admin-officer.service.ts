@@ -2,7 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Brackets } from 'typeorm';
 import { User, UserRole } from '../users/user.entity';
-import { OfficerProfile } from '../profile/entities/officer-profile.entity';
+import {
+  OfficerProfile,
+  Department,
+  UnionPosition,
+} from '../profile/entities/officer-profile.entity';
 import { OfficerQueryDto } from './dto/officer-query.dto';
 import { OfficerHistory, ChangeType } from './entities/officer-history.entity';
 
@@ -281,5 +285,32 @@ export class AdminOfficerService {
     }
 
     return { message: `Seeded data for ${updatedCount} officers` };
+  }
+
+  async createUnitAdmin() {
+    const email = 'unitadmin@union.com';
+    const password = 'password123';
+
+    const existing = await this.usersRepository.findOne({ where: { email } });
+    if (existing) {
+      return { message: 'Unit Admin already exists' };
+    }
+
+    // Register user
+    const user = await this.authService.register(email, password);
+
+    // Update role to UNIT_ADMIN
+    user.role = UserRole.UNIT_ADMIN;
+    await this.usersRepository.save(user);
+
+    // Create profile
+    await this.profileService.create(user.id, {
+      fullName: 'Quản lý Ban Tổ chức',
+      employeeId: 'UA001',
+      department: Department.ORGANIZATION,
+      unionPosition: UnionPosition.EXECUTIVE_COMMITTEE_MEMBER,
+    });
+
+    return { message: 'Unit Admin created successfully' };
   }
 }

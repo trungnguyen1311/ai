@@ -10,6 +10,7 @@ import { OfficerProfile } from '../profile/entities/officer-profile.entity';
 
 export enum UserRole {
   ADMIN = 'ADMIN',
+  UNIT_ADMIN = 'UNIT_ADMIN',
   USER = 'USER',
 }
 
