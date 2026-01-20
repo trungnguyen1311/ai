@@ -61,7 +61,7 @@ export class OfficerProfile {
   @Column({ type: 'enum', enum: Gender, default: Gender.MALE })
   gender: Gender;
 
-  @Column({ name: 'national_id', nullable: true, unique: true })
+  @Column({ name: 'national_id', nullable: true })
   nationalId: string;
 
   @Column({ name: 'phone_number', nullable: true })

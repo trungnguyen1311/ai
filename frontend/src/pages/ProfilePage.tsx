@@ -1,20 +1,16 @@
-import { useEffect, useState, useCallback } from "react";
-import { profileService } from "../services/profileService";
-import {
-  Department,
-  UnionPosition,
-  WorkStatus,
-  DepartmentLabels,
-  UnionPositionLabels,
-  WorkStatusLabels,
-} from "../types/profile";
-import type {
-  OfficerProfile,
-  UpdateProfileDto,
-  CreateProfileDto,
-} from "../types/profile";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import CVManagement from "../components/CVManagement";
+import { profileService } from "../services/profileService";
+import type { OfficerProfile } from "../types/profile";
+import {
+  Department,
+  DepartmentLabels,
+  UnionPosition,
+  UnionPositionLabels,
+  WorkStatus,
+  WorkStatusLabels,
+} from "../types/profile";
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<OfficerProfile | null>(null);
@@ -56,11 +52,34 @@ export default function ProfilePage() {
     fetchProfile();
   }, [fetchProfile]);
 
-  const onUpdateSubmit = async (data: UpdateProfileDto) => {
+  const cleanProfileData = (data: any, isUpdate = false) => {
+    const cleaned: any = {};
+    const metadataFields = ["id", "userId", "createdAt", "updatedAt", "tags"];
+
+    Object.keys(data).forEach((key) => {
+      if (isUpdate && metadataFields.includes(key)) return;
+      const value = data[key];
+      if (value !== "" && value !== null && value !== undefined) {
+        if (key === "dateOfBirth" || key === "joinDate") {
+          const date = new Date(value);
+          if (!isNaN(date.getTime())) {
+            cleaned[key] = date.toISOString();
+          }
+        } else {
+          cleaned[key] = value;
+        }
+      }
+    });
+
+    return cleaned;
+  };
+
+  const onUpdateSubmit = async (data: any) => {
     setIsSubmitting(true);
     setSubmitError(null);
     try {
-      const updated = await profileService.updateProfile(data);
+      const updateData = cleanProfileData(data, true);
+      const updated = await profileService.updateProfile(updateData);
       setProfile(updated);
       setIsEditing(false);
       reset(updated);
@@ -74,11 +93,12 @@ export default function ProfilePage() {
     }
   };
 
-  const onCreateSubmit = async (data: CreateProfileDto) => {
+  const onCreateSubmit = async (data: any) => {
     setIsSubmitting(true);
     setSubmitError(null);
     try {
-      const created = await profileService.createProfile(data);
+      const createData = cleanProfileData(data);
+      const created = await profileService.createProfile(createData);
       setProfile(created);
       setIsCreating(false);
       reset(created);

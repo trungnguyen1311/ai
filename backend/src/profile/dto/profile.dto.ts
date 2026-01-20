@@ -20,7 +20,7 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsString()
   @Matches(/^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$/, {
-    message: 'Phone number must be a valid Vietnamese phone number',
+    message: 'Số điện thoại không hợp lệ (Việt Nam)',
   })
   phoneNumber?: string;
 
@@ -37,8 +37,23 @@ export class UpdateProfileDto {
   fullName?: string;
 
   @IsOptional()
+  @IsString()
+  employeeId?: string;
+
+  @IsOptional()
+  @IsEnum(Department)
+  department?: Department;
+
+  @IsOptional()
+  @IsBoolean()
+  isPartyMember?: boolean;
+
+  @IsOptional()
   @IsDateString()
-  @Type(() => Date)
+  joinDate?: Date;
+
+  @IsOptional()
+  @IsDateString()
   dateOfBirth?: Date;
 
   @IsOptional()
@@ -101,7 +116,6 @@ export class CreateProfileDto {
 
   @IsOptional()
   @IsDateString()
-  @Type(() => Date)
   dateOfBirth?: Date;
 
   @IsOptional()
@@ -114,7 +128,6 @@ export class CreateProfileDto {
 
   @IsOptional()
   @IsDateString()
-  @Type(() => Date)
   joinDate?: Date;
 
   @IsOptional()
