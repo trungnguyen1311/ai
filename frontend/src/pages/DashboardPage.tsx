@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { profileService } from "../services/profileService";
+import { useAuth } from "../context/AuthContext";
 import type { OfficerProfile } from "../types/profile";
 
 export default function DashboardPage() {
   const [profile, setProfile] = useState<OfficerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
   const fetchProfile = async () => {
     setLoading(true);
@@ -57,6 +59,11 @@ export default function DashboardPage() {
             </h1>
             <p className="text-xl text-slate-400 font-medium">
               Chào mừng bạn quay trở lại với Hệ thống Quản lý Cán bộ Công đoàn.
+              {user?.role === "ADMIN" && (
+                <span className="ml-2 inline-flex items-center px-3 py-0.5 rounded-full text-sm font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                  ADMIN
+                </span>
+              )}
             </p>
           </div>
         </div>
@@ -120,6 +127,37 @@ export default function DashboardPage() {
 
           {/* Quick Actions */}
           <div className="flex flex-col gap-4">
+            {user?.role === "ADMIN" && (
+              <Link
+                to="/admin/officers"
+                className="flex-1 group bg-gradient-to-br from-indigo-600 to-purple-700 hover:from-indigo-500 hover:to-purple-600 p-8 rounded-[2rem] shadow-xl shadow-indigo-500/20 transition-all flex flex-col justify-between"
+              >
+                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-white mb-4 transition-transform group-hover:scale-110">
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-white font-black text-xl mb-1">
+                    Quản lý Cán bộ
+                  </h3>
+                  <p className="text-indigo-100 text-sm font-medium opacity-80">
+                    Quản trị hồ sơ và tài khoản
+                  </p>
+                </div>
+              </Link>
+            )}
+
             <Link
               to="/profile"
               className="flex-1 group bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 p-8 rounded-[2rem] shadow-xl shadow-blue-500/20 transition-all flex flex-col justify-between"
@@ -150,8 +188,8 @@ export default function DashboardPage() {
             </Link>
 
             <Link
-              to="/profile" // Link to profile page where edit is available
-              className="flex-1 group bg-white/5 hover:bg-white/10 border border-white/10 p-8 rounded-[2rem] transition-all flex flex-col justify-between"
+              to="/profile"
+              className="group bg-white/5 hover:bg-white/10 border border-white/10 p-8 rounded-[2rem] transition-all flex flex-col justify-between"
             >
               <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-slate-400 mb-4 transition-transform group-hover:scale-110 group-hover:text-white">
                 <svg

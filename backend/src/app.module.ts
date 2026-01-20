@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ProfileModule } from './profile/profile.module';
+import { AdminModule } from './admin/admin.module';
 import { User } from './users/user.entity';
 import { OfficerProfile } from './profile/entities/officer-profile.entity';
 
@@ -25,8 +26,9 @@ import { OfficerProfile } from './profile/entities/officer-profile.entity';
     AuthModule,
     UsersModule,
     ProfileModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
