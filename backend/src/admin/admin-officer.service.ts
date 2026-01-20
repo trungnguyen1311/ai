@@ -5,6 +5,10 @@ import { User, UserRole } from '../users/user.entity';
 import { OfficerProfile } from '../profile/entities/officer-profile.entity';
 import { OfficerQueryDto } from './dto/officer-query.dto';
 
+import { AuthService } from '../auth/auth.service';
+import { ProfileService } from '../profile/profile.service';
+import { CreateOfficerDto } from './dto/create-officer.dto';
+
 @Injectable()
 export class AdminOfficerService {
   constructor(
@@ -12,7 +16,34 @@ export class AdminOfficerService {
     private usersRepository: Repository<User>,
     @InjectRepository(OfficerProfile)
     private profileRepository: Repository<OfficerProfile>,
+    private authService: AuthService,
+    private profileService: ProfileService,
   ) {}
+
+  async create(dto: CreateOfficerDto) {
+    const { email, password, fullName, employeeId, department, unionPosition } =
+      dto;
+
+    // 1. Create User
+    const user = await this.authService.register(email, password);
+
+    // 2. Create Profile
+    await this.profileService.create(user.id, {
+      fullName,
+      employeeId,
+      department,
+      unionPosition,
+    });
+
+    return {
+      message: 'Tài khoản cán bộ đã được tạo thành công',
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName,
+      },
+    };
+  }
 
   async findAll(query: OfficerQueryDto) {
     const {

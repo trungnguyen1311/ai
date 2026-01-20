@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Post,
   Patch,
   Param,
   Body,
@@ -14,12 +15,18 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../users/user.entity';
 import { AdminOfficerService } from './admin-officer.service';
 import { OfficerQueryDto } from './dto/officer-query.dto';
+import { CreateOfficerDto } from './dto/create-officer.dto';
 
 @Controller('admin/officers')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 @Roles(UserRole.ADMIN)
 export class AdminOfficerController {
   constructor(private readonly adminOfficerService: AdminOfficerService) {}
+
+  @Post()
+  async create(@Body() dto: CreateOfficerDto) {
+    return this.adminOfficerService.create(dto);
+  }
 
   @Get()
   async findAll(@Query() query: OfficerQueryDto) {

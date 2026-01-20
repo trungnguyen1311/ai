@@ -1,4 +1,6 @@
 import axios from "axios";
+import { Department, UnionPosition } from "../types/profile";
+import type { AdminCreateOfficerDto } from "../types/profile";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -8,8 +10,8 @@ const adminService = {
       page?: number;
       limit?: number;
       search?: string;
-      department?: string;
-      unionPosition?: string;
+      department?: Department;
+      unionPosition?: UnionPosition;
       isActive?: string;
     } = {},
   ) => {
@@ -33,6 +35,13 @@ const adminService = {
       { isActive },
       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } },
     );
+    return response.data;
+  },
+
+  createOfficer: async (data: AdminCreateOfficerDto) => {
+    const response = await axios.post(`${API_URL}/admin/officers`, data, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
     return response.data;
   },
 };

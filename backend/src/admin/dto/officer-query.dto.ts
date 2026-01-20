@@ -4,8 +4,13 @@ import {
   IsInt,
   Min,
   IsBooleanString,
+  IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import {
+  Department,
+  UnionPosition,
+} from '../../profile/entities/officer-profile.entity';
 
 export class OfficerQueryDto {
   @IsOptional()
@@ -25,12 +30,12 @@ export class OfficerQueryDto {
   search?: string;
 
   @IsOptional()
-  @IsString()
-  department?: string;
+  @IsEnum(Department)
+  department?: Department;
 
   @IsOptional()
-  @IsString()
-  unionPosition?: string;
+  @IsEnum(UnionPosition)
+  unionPosition?: UnionPosition;
 
   @IsOptional()
   @IsBooleanString()

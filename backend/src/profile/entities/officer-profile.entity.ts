@@ -1,65 +1,92 @@
-
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToOne,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { User } from '../../users/user.entity';
 
 export enum Gender {
-    MALE = 'Male',
-    FEMALE = 'Female',
-    OTHER = 'Other',
+  MALE = 'Male',
+  FEMALE = 'Female',
+  OTHER = 'Other',
+}
+
+export enum Department {
+  PROPAGANDA_EDUCATION = 'PROPAGANDA_EDUCATION',
+  ORGANIZATION = 'ORGANIZATION',
+  POLICIES_LAWS = 'POLICIES_LAWS',
+  OFFICE = 'OFFICE',
+  WOMEN_AFFAIRS = 'WOMEN_AFFAIRS',
+}
+
+export enum UnionPosition {
+  PRESIDENT = 'PRESIDENT',
+  VICE_PRESIDENT = 'VICE_PRESIDENT',
+  EXECUTIVE_COMMITTEE_MEMBER = 'EXECUTIVE_COMMITTEE_MEMBER',
+  BOARD_MEMBER = 'BOARD_MEMBER',
+  SPECIALIZED_OFFICER = 'SPECIALIZED_OFFICER',
 }
 
 @Entity('officer_profiles')
 export class OfficerProfile {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-    @OneToOne(() => User, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'user_id' })
-    user: User;
+  @OneToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
-    @Column({ name: 'user_id', unique: true })
-    userId: string;
+  @Column({ name: 'user_id', unique: true })
+  userId: string;
 
+  @Column({ name: 'employee_id', unique: true })
+  employeeId: string;
 
-    @Column({ name: 'employee_id', unique: true })
-    employeeId: string;
+  @Column({ name: 'full_name' })
+  fullName: string;
 
-    @Column({ name: 'full_name' })
-    fullName: string;
+  @Column({ type: 'date', nullable: true, name: 'date_of_birth' })
+  dateOfBirth: Date;
 
-    @Column({ type: 'date', nullable: true, name: 'date_of_birth' })
-    dateOfBirth: Date;
+  @Column({ type: 'enum', enum: Gender, default: Gender.MALE })
+  gender: Gender;
 
-    @Column({ type: 'enum', enum: Gender, default: Gender.MALE })
-    gender: Gender;
+  @Column({ name: 'national_id', nullable: true, unique: true })
+  nationalId: string;
 
-    @Column({ name: 'national_id', nullable: true, unique: true })
-    nationalId: string;
+  @Column({ name: 'phone_number', nullable: true })
+  phoneNumber: string;
 
-    @Column({ name: 'phone_number', nullable: true })
-    phoneNumber: string;
+  @Column({ name: 'personal_email', nullable: true })
+  personalEmail: string;
 
-    @Column({ name: 'personal_email', nullable: true })
-    personalEmail: string;
+  @Column({ type: 'text', nullable: true })
+  address: string;
 
-    @Column({ type: 'text', nullable: true })
-    address: string;
+  @Column({
+    type: 'enum',
+    enum: UnionPosition,
+    name: 'union_position',
+    nullable: false,
+  })
+  unionPosition: UnionPosition;
 
-    @Column({ name: 'union_position' })
-    unionPosition: string;
+  @Column({ type: 'enum', enum: Department, nullable: false })
+  department: Department;
 
-    @Column()
-    department: string;
+  @Column({ type: 'date', name: 'join_date', default: () => 'CURRENT_DATE' })
+  joinDate: Date;
 
-    @Column({ type: 'date', name: 'join_date', default: () => 'CURRENT_DATE' })
-    joinDate: Date;
+  @Column({ name: 'is_party_member', default: false })
+  isPartyMember: boolean;
 
-    @Column({ name: 'is_party_member', default: false })
-    isPartyMember: boolean;
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 
-    @CreateDateColumn({ name: 'created_at' })
-    createdAt: Date;
-
-    @UpdateDateColumn({ name: 'updated_at' })
-    updatedAt: Date;
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 }

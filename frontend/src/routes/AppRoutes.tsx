@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import ProfilePage from "../pages/ProfilePage";
@@ -6,6 +6,7 @@ import DashboardPage from "../pages/DashboardPage";
 import AdminOfficerListPage from "../pages/AdminOfficerListPage";
 import AdminOfficerDetailPage from "../pages/AdminOfficerDetailPage";
 import ProtectedRoute from "../components/ProtectedRoute";
+import AdminLayout from "../components/AdminLayout";
 import { useAuth } from "../context/AuthContext";
 
 export default function AppRoutes() {
@@ -19,19 +20,30 @@ export default function AppRoutes() {
 
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route
+          element={
+            <AdminLayout>
+              <Outlet />
+            </AdminLayout>
+          }
+        >
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
 
-        {/* Admin Routes */}
-        {user?.role === "ADMIN" && (
-          <>
-            <Route path="/admin/officers" element={<AdminOfficerListPage />} />
-            <Route
-              path="/admin/officers/:id"
-              element={<AdminOfficerDetailPage />}
-            />
-          </>
-        )}
+          {/* Admin Routes */}
+          {user?.role === "ADMIN" && (
+            <>
+              <Route
+                path="/admin/officers"
+                element={<AdminOfficerListPage />}
+              />
+              <Route
+                path="/admin/officers/:id"
+                element={<AdminOfficerDetailPage />}
+              />
+            </>
+          )}
+        </Route>
       </Route>
 
       {/* Default Redirect */}
